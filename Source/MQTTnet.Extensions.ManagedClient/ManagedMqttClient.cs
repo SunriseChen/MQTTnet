@@ -291,7 +291,8 @@ namespace MQTTnet.Extensions.ManagedClient
             Exception transmitException = null;
             try
             {
-                _mqttClient.PublishAsync(message.ApplicationMessage).GetAwaiter().GetResult();
+                //_mqttClient.PublishAsync(message.ApplicationMessage).GetAwaiter().GetResult();
+                AsyncContext.Run(() => _mqttClient.PublishAsync(message.ApplicationMessage).ConfigureAwait(false));
                 lock (_messageQueue) //lock to avoid conflict with this.PublishAsync
                 {
                     //While publishing this message, this.PublishAsync could have booted this
@@ -302,7 +303,11 @@ namespace MQTTnet.Extensions.ManagedClient
                     //removed it, in which case we don't want to do anything.
                     _messageQueue.RemoveFirst(i => i.Id.Equals(message.Id));
                 }
-                _storageManager?.RemoveAsync(message).GetAwaiter().GetResult();
+                //_storageManager?.RemoveAsync(message).GetAwaiter().GetResult();
+                if (_storageManager != null)
+                {
+                    AsyncContext.Run(() => _storageManager.RemoveAsync(message).ConfigureAwait(false));
+                }
             }
             catch (MqttCommunicationException exception)
             {

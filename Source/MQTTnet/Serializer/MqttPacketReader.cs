@@ -76,7 +76,8 @@ namespace MQTTnet.Serializer
 
         private static byte ReadByte(IMqttChannel channel, byte[] singleByteBuffer, CancellationToken cancellationToken)
         {
-            var readCount = channel.ReadAsync(singleByteBuffer, 0, 1, cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
+            //var readCount = channel.ReadAsync(singleByteBuffer, 0, 1, cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
+            var readCount = AsyncContext.Run(async () => await channel.ReadAsync(singleByteBuffer, 0, 1, cancellationToken).ConfigureAwait(false));
 
             cancellationToken.ThrowIfCancellationRequested();
 
