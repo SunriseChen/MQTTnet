@@ -196,7 +196,8 @@ namespace MQTTnet.Adapter
 #else
                     // async/await is not used to avoid the overhead of context switches. We assume that the reamining data
                     // has been sent from the sender directly after the initial bytes.
-                    var readBytes = _channel.ReadAsync(body, bodyOffset, chunkSize, cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
+                    //var readBytes = _channel.ReadAsync(body, bodyOffset, chunkSize, cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
+                    var readBytes = AsyncContext.Run(async () => await _channel.ReadAsync(body, bodyOffset, chunkSize, cancellationToken).ConfigureAwait(false));
 #endif
 
                     cancellationToken.ThrowIfCancellationRequested();
